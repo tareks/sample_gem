@@ -1,0 +1,44 @@
+# This workflow will a number of interested repositories when a new release is created
+# It can just emit a repository_dispatch event or raise Pull Requests
+name: Notify Consumer Repos
+
+on:
+  # push:
+    # branches: [ main ]
+    # # Only trigger if lib/payment_provider_client/version.rb changes
+    # paths:
+    #   - 'lib/payment_provider_client/version.rb'
+    # tags: # TODO: maybe just when a new tag is created?
+    #   - v*
+  release:
+    types: [published]
+  workflow_dispatch:
+
+env:
+  # Space separated list of repositories to notify
+  repoList: ""
+  #repoDispatchEventName: 'payment_provider_client_gem_release'
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      # Extract the tag name of the release that was just published in this repo
+      - name: Extract tag name
+        id: extract_tag
+        run: echo ::set-output name=tag_name::${{ github.event.release.tag_name }}
+
+      - name: Get version
+        id: version
+        run: echo ::set-output name=version::$(grep -oP 'VERSION = "\K[^"]+' lib/payment_provider_client/version.rb)
+
+      - name: Notify Consumer Repos
+        run: |
+          for repo in ${{ env.repoList }}; do
+            echo "Sending repository_dispatch event to [$repo] with event_type []"
+            # curl -X POST -H "Accept: application/vnd.github.everest-preview+json" \
+            #   -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            #   https://api.github.com/repos/$repo/dispatches \
+            #   -d '{"event_type": "${{ env.repoDispatchEventName}}", "client_payload": { "version": "${{ steps.version.outputs.version }}" }}'
+          done 
+
