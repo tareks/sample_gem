@@ -9,7 +9,7 @@ on:
 env:
   GEM_NAME: sample_gem
   RUBY_VERSION: 3.3.1
-  GEM_VERSION: ${{ github.event.release.tag_name }} || ${{ github.sha }}
+  GEM_VERSION: ${{ github.event.release.tag_name || github.sha }}
 
 jobs:
   raise_prs:
