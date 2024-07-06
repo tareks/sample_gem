@@ -9,6 +9,7 @@ on:
 env:
   GEM_NAME: sample_gem
   RUBY_VERSION: 3.3.1
+  GEM_VERSION: ${{ github.event.release.tag_name }} || ${{ github.sha }}
 
 jobs:
   raise_prs:
@@ -43,18 +44,36 @@ jobs:
       # Set git configuration
       - name: Set git config
         run: |
+          cd ${{ matrix.appPath }}
           git config --global user.email "github-actions@github.com"
           git config --global user.name "github-actions"
 
       # Create a new branch
       - name: Create branch
         run: |
-          git checkout -b update-${{ env.GEM_NAME }}-to-${{ github.event.release.tag_name }}
+          cd ${{ matrix.appPath }}
+          git checkout -b update-${{ env.GEM_NAME }}-to-${{ env.GEM_VERSION }}
       # Commit changes
       - name: Commit changes
+        id: commit_changes
         run: |
-          git add .
-          git commit -m "chore: bump ${{ env.GEM_NAME }} to ${{ github.event.release.tag_name }}"
-          git log
-      # Raise a PR aganst target repo
+          cd ${{ matrix.appPath }}
+          if [ -n "$(git status Gemfile.lock --porcelain)" ]; then
+            git diff Gemfile.lock 
+            git add Gemfile.lock
+            git commit -m "chore: bump ${{ env.GEM_NAME }} to ${{ env.GEM_VERSION }}"
+            echo "Changes committed."
+            echo "::set-output name=changes::false"
+            git log
+          else
+            echo "No changes to commit."
+            echo "::set-output name=changes::false"
+          fi
 
+      # Raise a PR aganst target repo only if there are changes to commit
+      - name: Raise Pull Request
+        if: steps.commit_changes.outputs.changes == 'true'
+        run: |
+          cd ${{ matrix.appPath }}
+          git push origin update-${{ env.GEM_NAME }}-to-${{ env.GEM_VERSION }}
+          gh pr create --title "chore: bump ${{ env.GEM_NAME }} to ${{ env.GEM_VERSION }}" --body "This PR updates ${{ env.GEM_NAME }} to ${{ env.GEM_VERSION }}" --base main --head update-${{ env.GEM_NAME }}-to-${{ env.GEM_VERSION }}      
