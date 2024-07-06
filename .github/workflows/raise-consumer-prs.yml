@@ -41,7 +41,20 @@ jobs:
           bundle info ${{ env.GEM_NAME }}
 
       # Set git configuration
+      - name: Set git config
+        run: |
+          git config --global user.email "github-actions@github.com"
+          git config --global user.name "github-actions"
+
       # Create a new branch
+      - name: Create branch
+        run: |
+          git checkout -b update-${{ env.GEM_NAME }}-to-${{ github.event.release.tag_name }}
       # Commit changes
+      - name: Commit changes
+        run: |
+          git add .
+          git commit -m "chore: bump ${{ env.GEM_NAME }} to ${{ github.event.release.tag_name }}"
+          git log
       # Raise a PR aganst target repo
 
