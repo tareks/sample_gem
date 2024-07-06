@@ -16,6 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
+      contents: write
     strategy:
       matrix:
         include:
@@ -78,6 +79,8 @@ jobs:
         run: |
           cd ${{ matrix.appPath }}
           git push origin update-${{ env.GEM_NAME }}-to-${{ env.GEM_VERSION }}
+
+
           gh pr create --title "chore: bump ${{ env.GEM_NAME }} to ${{ env.GEM_VERSION }}" --body "This PR updates ${{ env.GEM_NAME }} to ${{ env.GEM_VERSION }}" --base main --head update-${{ env.GEM_NAME }}-to-${{ env.GEM_VERSION }}      
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
