@@ -10,8 +10,8 @@ on:
     #   - 'lib/payment_provider_client/version.rb'
     # tags: # TODO: maybe just when a new tag is created?
     #   - v*
-  release:
-    types: [published]
+  # release:
+  #   types: [published]
   workflow_dispatch:
 
 env:
