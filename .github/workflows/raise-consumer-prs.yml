@@ -14,6 +14,8 @@ env:
 jobs:
   raise_prs:
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
     strategy:
       matrix:
         include:
