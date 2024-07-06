@@ -1,8 +1,9 @@
 name: CI
 
-on: [push, pull_request]
-  paths-ignore:
-    - '.github/**'
+on: 
+  push:
+    paths-ignore:
+      - '.github/**'
 
 jobs:
   build:
