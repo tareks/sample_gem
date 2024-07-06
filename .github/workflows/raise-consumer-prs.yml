@@ -63,7 +63,7 @@ jobs:
             git add Gemfile.lock
             git commit -m "chore: bump ${{ env.GEM_NAME }} to ${{ env.GEM_VERSION }}"
             echo "Changes committed."
-            echo "::set-output name=changes::false"
+            echo "::set-output name=changes::true"
             git log
           else
             echo "No changes to commit."
