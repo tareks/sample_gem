@@ -1,0 +1,45 @@
+# This workflow will raise PRs against a set of repos when a release is created.
+name: Raise Consumer Pull Requests
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+env:
+  GEM_NAME: sample_gem
+  RUBY_VERSION: 3.3.1
+
+jobs:
+  raise_prs:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - repo: 'https://github.com/tareks/hello-world-rails'
+            appPath: 'hello_world'
+    steps:
+      # Checkout the target repository
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ matrix.repo }}
+
+      # Configure ruby and use bundler in Gemfile.lock
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ env.RUBY_VERSION }}
+          bundler-cache: false
+          
+      - name: Bundle update
+        run: |
+          cd ${{ matrix.appPath }}
+          bundle update ${{ env.GEM_NAME }}
+          bundle info ${{ env.GEM_NAME }}
+
+      # Set git configuration
+      # Create a new branch
+      # Commit changes
+      # Raise a PR aganst target repo
+
