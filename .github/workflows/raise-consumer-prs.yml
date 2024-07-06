@@ -16,8 +16,10 @@ jobs:
     strategy:
       matrix:
         include:
-          - repo: 'https://github.com/tareks/hello-world-rails'
+          - repo: 'tareks/hello-world-rails'
             appPath: 'hello_world'
+
+    name: 'Raising PR against ${{ matrix.repo }}'
     steps:
       # Checkout the target repository
       - name: Checkout code
