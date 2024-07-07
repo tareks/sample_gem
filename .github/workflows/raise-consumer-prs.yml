@@ -90,8 +90,8 @@ jobs:
         run: |
           set -euo pipefail
 
-          cd ${{ matrix.appPath }}
           # git push origin update-${{ env.GEM_NAME }}-to-${{ env.GEM_VERSION }}
+          git branch -a
 
           gh pr create --title "chore: bump ${{ env.GEM_NAME }} to ${{ env.GEM_VERSION }}" --body "This PR updates ${{ env.GEM_NAME }} to ${{ env.GEM_VERSION }}" --base main --head update-${{ env.GEM_NAME }}-to-${{ env.GEM_VERSION }}      
         env:
