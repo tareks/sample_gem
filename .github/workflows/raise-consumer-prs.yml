@@ -48,7 +48,7 @@ jobs:
       - uses: actions/create-github-app-token@v1
         id: app-token
         with:
-          app-id: 'tareks-auto-pr-creation-bot'
+          app-id: 938987 # 'tareks-auto-pr-creation-bot'
           private-key: ${{ secrets.GH_APP_AUTO_PR_TOKEN }}
           owner: ${{ matrix.repoOwner }}
           repositories: "${{ matrix.repoName }}"
