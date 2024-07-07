@@ -11,9 +11,6 @@ env:
   RUBY_VERSION: 3.3.1
   GEM_VERSION: ${{ github.event.release.tag_name || github.sha }}
 
-vars:
-  GH_APP_ID: 'tareks-auto-pr-creation-bot'
-
 jobs:
   raise_prs:
     runs-on: ubuntu-latest
@@ -51,7 +48,7 @@ jobs:
       - uses: actions/create-github-app-token@v1
         id: app-token
         with:
-          app-id: ${{ vars.GH_APP_ID }}
+          app-id: 'tareks-auto-pr-creation-bot'
           private-key: ${{ secrets.GH_APP_AUTO_PR_TOKEN }}
           owner: ${{ matrix.repoOwner }}
           repositories: "${{ matrix.repoName }}"
