@@ -76,12 +76,12 @@ jobs:
             git diff Gemfile.lock 
             git add Gemfile.lock
             git commit -m "chore: bump ${{ env.GEM_NAME }} to ${{ env.GEM_VERSION }}"
-            echo "Changes committed."
-            echo "::set-output name=changes::true"
+            echo "Changes committed."     
             git log
+            echo "changes=true" >> "$GITHUB_OUTPUT"
           else
             echo "No changes to commit."
-            echo "::set-output name=changes::false"
+            echo "changes=false" >> "$GITHUB_OUTPUT"
           fi
 
       # Raise a PR aganst target repo only if there are changes to commit
