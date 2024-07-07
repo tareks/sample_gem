@@ -26,11 +26,20 @@ jobs:
 
     name: 'Raising PR against ${{ matrix.repoOwner }}/${{ matrix.repoName }}'
     steps:
-      # Checkout the target repository
+      - uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: 938987 # 'tareks-auto-pr-creation-bot'
+          private-key: ${{ secrets.GH_APP_AUTO_PR_TOKEN }}
+          owner: ${{ matrix.repoOwner }}
+          repositories: "${{ matrix.repoName }}"
+
+      # Checkout the target repository with token
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           repository: ${{ matrix.repoOwner }}/${{ matrix.repoName }}
+          token: ${{ steps.app-token.outputs.token }}
 
       # Configure ruby and use bundler in Gemfile.lock
       - name: Set up Ruby
@@ -44,14 +53,6 @@ jobs:
           cd ${{ matrix.appPath }}
           bundle update ${{ env.GEM_NAME }}
           bundle info ${{ env.GEM_NAME }}
-
-      - uses: actions/create-github-app-token@v1
-        id: app-token
-        with:
-          app-id: 938987 # 'tareks-auto-pr-creation-bot'
-          private-key: ${{ secrets.GH_APP_AUTO_PR_TOKEN }}
-          owner: ${{ matrix.repoOwner }}
-          repositories: "${{ matrix.repoName }}"
 
       - name: Get GitHub App User ID
         id: get-user-id
@@ -90,9 +91,8 @@ jobs:
         run: |
           set -euo pipefail
 
-          # git push origin update-${{ env.GEM_NAME }}-to-${{ env.GEM_VERSION }}
-          git branch -a
+          git push origin update-${{ env.GEM_NAME }}-to-${{ env.GEM_VERSION }}
 
-          gh pr create --title "chore: bump ${{ env.GEM_NAME }} to ${{ env.GEM_VERSION }}" --body "This PR updates ${{ env.GEM_NAME }} to ${{ env.GEM_VERSION }}" --base main --head update-${{ env.GEM_NAME }}-to-${{ env.GEM_VERSION }}      
+          gh pr create --title "[gem] bump ${{ env.GEM_NAME }} to ${{ env.GEM_VERSION }}" --body "This PR updates ${{ env.GEM_NAME }} to ${{ env.GEM_VERSION }}. It was automatically generated as a result of a new release." --base main --head update-${{ env.GEM_NAME }}-to-${{ env.GEM_VERSION }}      
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
