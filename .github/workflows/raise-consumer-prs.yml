@@ -11,6 +11,9 @@ env:
   RUBY_VERSION: 3.3.1
   GEM_VERSION: ${{ github.event.release.tag_name || github.sha }}
 
+vars:
+  GH_APP_ID: 'tareks-auto-pr-creation-bot'
+
 jobs:
   raise_prs:
     runs-on: ubuntu-latest
@@ -20,16 +23,17 @@ jobs:
     strategy:
       matrix:
         include:
-          - repo: 'tareks/hello-world-rails'
+          - repoOwner: 'tareks'
+            repoName: 'hello-world-rails'
             appPath: 'hello_world'
 
-    name: 'Raising PR against ${{ matrix.repo }}'
+    name: 'Raising PR against ${{ matrix.repoOwner }}/${{ matrix.repoName }}'
     steps:
       # Checkout the target repository
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          repository: ${{ matrix.repo }}
+          repository: ${{ matrix.repoOwner }}/${{ matrix.repoName }}
 
       # Configure ruby and use bundler in Gemfile.lock
       - name: Set up Ruby
@@ -44,24 +48,34 @@ jobs:
           bundle update ${{ env.GEM_NAME }}
           bundle info ${{ env.GEM_NAME }}
 
-      # Set git configuration
+      - uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ vars.GH_APP_ID }}
+          private-key: ${{ secrets.GH_APP_AUTO_PR_TOKEN }}
+          owner: ${{ matrix.repoOwner }}
+          repositories: "${{ matrix.repoName }}"
+
+      - name: Get GitHub App User ID
+        id: get-user-id
+        run: echo "user-id=$(gh api "/users/${{ steps.app-token.outputs.app-slug }}[bot]" --jq .id)" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+
       - name: Set git config
         run: |
-          cd ${{ matrix.appPath }}
-          git config --global user.email "github-actions@github.com"
-          git config --global user.name "github-actions"
+          git config --global user.name '${{ steps.app-token.outputs.app-slug }}[bot]'
+          git config --global user.email '${{ steps.get-user-id.outputs.user-id }}+${{ steps.app-token.outputs.app-slug }}[bot]@users.noreply.github.com>'
 
-      # Create a new branch
-      - name: Create branch
-        run: |
-          cd ${{ matrix.appPath }}
-          git checkout -b update-${{ env.GEM_NAME }}-to-${{ env.GEM_VERSION }}
-      # Commit changes
+      # Create Branch and Commit changes
       - name: Commit changes
         id: commit_changes
         run: |
+          set -euo pipefail
+
           cd ${{ matrix.appPath }}
           if [ -n "$(git status Gemfile.lock --porcelain)" ]; then
+            git checkout -b update-${{ env.GEM_NAME }}-to-${{ env.GEM_VERSION }}
             git diff Gemfile.lock 
             git add Gemfile.lock
             git commit -m "chore: bump ${{ env.GEM_NAME }} to ${{ env.GEM_VERSION }}"
@@ -77,9 +91,10 @@ jobs:
       - name: Raise Pull Request
         if: steps.commit_changes.outputs.changes == 'true'
         run: |
+          set -euo pipefail
+
           cd ${{ matrix.appPath }}
           git push origin update-${{ env.GEM_NAME }}-to-${{ env.GEM_VERSION }}
-
 
           gh pr create --title "chore: bump ${{ env.GEM_NAME }} to ${{ env.GEM_VERSION }}" --body "This PR updates ${{ env.GEM_NAME }} to ${{ env.GEM_VERSION }}" --base main --head update-${{ env.GEM_NAME }}-to-${{ env.GEM_VERSION }}      
         env:
