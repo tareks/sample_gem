@@ -4,9 +4,6 @@
 # trigger another workflow.
 name: Raise Consumer Pull Requests
 
-env:
-  AUTOGENERATE_TAG: ${{ inputs.autogenerate_tag || true }}
-
 on:
   # Leave this in case a manual release is created
   release:
@@ -43,12 +40,12 @@ jobs:
     name: 'Raising PR against ${{ matrix.repoOwner }}/${{ matrix.repoName }}'
     env:
       GEM_NAME: sample_gem
-      GEM_VERSION: ${{ github.event.release.tag_name || github.sha }}
+      GEM_VERSION: ${{ inputs.gem-version || github.event.release.tag_name || github.sha }}
     steps:
       # Debug
       - name: debug_workflow_call
         id: debug_workflow_call
-        if: env.AUTOGENERATE_TAG == false
+        if: inputs.AUTOGENERATE_TAG == false
         run: |
           set -euo pipefail
 
@@ -57,7 +54,7 @@ jobs:
 
       - name: debug_not_workflow_call
         id: debug_not_workflow_call
-        if: env.AUTOGENERATE_TAG == true
+        if: inputs.AUTOGENERATE_TAG == true
         run: |
           set -euo pipefail
           
