@@ -4,6 +4,9 @@
 # trigger another workflow.
 name: Raise Consumer Pull Requests
 
+env:
+  AUTOGENERATE_TAG: ${{ inputs.autogenerate_tag || true }}
+
 on:
   # Leave this in case a manual release is created
   release:
@@ -17,6 +20,11 @@ on:
         description: release to use for gem version
         required: true
         type: string
+      autogenerate_tag:
+        default: false
+        description: Reusable workflow should never autogenerate
+        required: false
+        type: boolean
 
 permissions:
   pull-requests: write
@@ -40,16 +48,16 @@ jobs:
       # Debug
       - name: debug_workflow_call
         id: debug_workflow_call
-        if: github.event_name == 'workflow_call'
+        if: env.AUTOGENERATE_TAG == false
         run: |
           set -euo pipefail
 
           echo "Triggered as reusable workflow. Expecing inputs."
           echo "gem-version: ${{ inputs.gem-version}}"
-          
+
       - name: debug_not_workflow_call
         id: debug_not_workflow_call
-        if: github.event_name != 'workflow_call'
+        if: env.AUTOGENERATE_TAG == true
         run: |
           set -euo pipefail
           
