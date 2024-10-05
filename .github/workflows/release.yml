@@ -4,13 +4,12 @@ on:
   push:
     branches: [ main ]
 
-permissions:
-  contents: write
-  pull-requests: write
-
 jobs:
   release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     outputs:
       release_created: ${{ steps.release.outputs.release_created }}
       tag_name: ${{ steps.release.outputs.tag_name }}
@@ -43,12 +42,12 @@ jobs:
           # Location of the version.rb file to bump for new releases
           version-file: "lib/${{ env.GEM_NAME }}/version.rb"
 
-  # raise-consumer-prs:
-  #   if: ${{ needs.release.outputs.release_created }}
-  #   needs:
-  #     - release
-  #   permissions:
-  #     contents: write
-  #     packages: write
-  #     pull-requests: write
-  #   uses: ./.github/workflows/raise-consumer-prs.yaml
+  raise-consumer-prs:
+    if: ${{ needs.release.outputs.release_created }}
+    needs:
+      - release
+    permissions:
+      contents: write
+      packages: write
+      pull-requests: write
+    uses: ./.github/workflows/raise-consumer-prs.yaml
