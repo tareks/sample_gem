@@ -1,0 +1,50 @@
+name: Release
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+    strategy:
+      fail-fast: false
+
+    env:
+      GEM_NAME: "sample_gem"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      # Bump gem version
+      # Use release-please-action.
+      - uses: google-github-actions/release-please-action@v3
+        # Assign an 'id' to this action
+        id: release
+        with:
+          # Use release-please/strategies/ruby.ts Release Type
+          release-type: ruby
+
+          # The name of the gem.
+          package-name: ${{ env.GEM_NAME }}
+
+          # Location of the version.rb file to bump for new releases
+          version-file: "lib/${{ env.GEM_NAME }}/version.rb"
+
+  # raise-consumer-prs:
+  #   if: ${{ needs.release.outputs.release_created }}
+  #   needs:
+  #     - release
+  #   permissions:
+  #     contents: write
+  #     packages: write
+  #     pull-requests: write
+  #   uses: ./.github/workflows/raise-consumer-prs.yaml
