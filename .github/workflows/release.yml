@@ -51,3 +51,5 @@ jobs:
       packages: write
       pull-requests: write
     uses: ./.github/workflows/raise-consumer-prs.yml
+    with:
+      gem-version: ${{ needs.release.outputs.tag_name }}
