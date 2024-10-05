@@ -50,4 +50,4 @@ jobs:
       contents: write
       packages: write
       pull-requests: write
-    uses: ./.github/workflows/raise-consumer-prs.yaml
+    uses: ./.github/workflows/raise-consumer-prs.yml
