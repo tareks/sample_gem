@@ -45,7 +45,7 @@ jobs:
       # Debug
       - name: debug_workflow_call
         id: debug_workflow_call
-        if: inputs.AUTOGENERATE_TAG == false
+        if: inputs.autogenerate_tag == false
         run: |
           set -euo pipefail
 
@@ -54,7 +54,7 @@ jobs:
 
       - name: debug_not_workflow_call
         id: debug_not_workflow_call
-        if: inputs.AUTOGENERATE_TAG == true
+        if: inputs.autogenerate_tag == true
         run: |
           set -euo pipefail
           
