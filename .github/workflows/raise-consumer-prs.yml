@@ -17,11 +17,6 @@ on:
         description: release to use for gem version
         required: true
         type: string
-      autogenerate_tag:
-        default: false
-        description: Reusable workflow should never autogenerate
-        required: false
-        type: boolean
 
 permissions:
   pull-requests: write
@@ -40,6 +35,7 @@ jobs:
     name: 'Raising PR against ${{ matrix.repoOwner }}/${{ matrix.repoName }}'
     env:
       GEM_NAME: sample_gem
+      # Base value on workflow_call (reusable) or user triggered release or just commit
       GEM_VERSION: ${{ inputs.gem-version || github.event.release.tag_name || github.sha }}
     steps:
       # Debug
@@ -49,72 +45,73 @@ jobs:
           set -euo pipefail
 
           echo "gem-version: $GEM_VERSION"
-      # - uses: actions/create-github-app-token@v1
-      #   id: app-token
-      #   with:
-      #     app-id: 938987 # 'tareks-auto-pr-creation-bot'
-      #     private-key: ${{ secrets.GH_APP_AUTO_PR_TOKEN }}
-      #     owner: ${{ matrix.repoOwner }}
-      #     repositories: "${{ matrix.repoName }}"
 
-      # # Checkout the target repository with token
-      # - name: Checkout code
-      #   uses: actions/checkout@v4
-      #   with:
-      #     repository: ${{ matrix.repoOwner }}/${{ matrix.repoName }}
-      #     token: ${{ steps.app-token.outputs.token }}
+      - uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: 938987 # 'tareks-auto-pr-creation-bot'
+          private-key: ${{ secrets.GH_APP_AUTO_PR_TOKEN }}
+          owner: ${{ matrix.repoOwner }}
+          repositories: "${{ matrix.repoName }}"
 
-      # # Configure ruby and use bundler in Gemfile.lock
-      # - name: Set up Ruby
-      #   uses: ruby/setup-ruby@v1
-      #   with:
-      #     bundler-cache: false
+      # Checkout the target repository with token
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ matrix.repoOwner }}/${{ matrix.repoName }}
+          token: ${{ steps.app-token.outputs.token }}
+
+      # Configure ruby and use bundler in Gemfile.lock
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: false
           
-      # - name: Bundle update
-      #   run: |
-      #     cd ${{ matrix.appPath }}
-      #     bundle update ${{ env.GEM_NAME }}
-      #     bundle info ${{ env.GEM_NAME }}
+      - name: Bundle update
+        run: |
+          cd ${{ matrix.appPath }}
+          bundle update ${{ env.GEM_NAME }}
+          bundle info ${{ env.GEM_NAME }}
 
-      # - name: Get GitHub App User ID
-      #   id: get-user-id
-      #   run: echo "user-id=$(gh api "/users/${{ steps.app-token.outputs.app-slug }}[bot]" --jq .id)" >> "$GITHUB_OUTPUT"
-      #   env:
-      #     GH_TOKEN: ${{ steps.app-token.outputs.token }}
+      - name: Get GitHub App User ID
+        id: get-user-id
+        run: echo "user-id=$(gh api "/users/${{ steps.app-token.outputs.app-slug }}[bot]" --jq .id)" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
 
-      # - name: Set git config
-      #   run: |
-      #     git config --global user.name '${{ steps.app-token.outputs.app-slug }}[bot]'
-      #     git config --global user.email '${{ steps.get-user-id.outputs.user-id }}+${{ steps.app-token.outputs.app-slug }}[bot]@users.noreply.github.com>'
+      - name: Set git config
+        run: |
+          git config --global user.name '${{ steps.app-token.outputs.app-slug }}[bot]'
+          git config --global user.email '${{ steps.get-user-id.outputs.user-id }}+${{ steps.app-token.outputs.app-slug }}[bot]@users.noreply.github.com>'
 
-      # # Create Branch and Commit changes
-      # - name: Commit changes
-      #   id: commit_changes
-      #   run: |
-      #     set -euo pipefail
+      # Create Branch and Commit changes
+      - name: Commit changes
+        id: commit_changes
+        run: |
+          set -euo pipefail
 
-      #     cd ${{ matrix.appPath }}
-      #     if [ -n "$(git status Gemfile.lock --porcelain)" ]; then
-      #       git checkout -b update-${{ env.GEM_NAME }}-to-${{ env.GEM_VERSION }}
-      #       git diff Gemfile.lock 
-      #       git add Gemfile.lock
-      #       git commit -m "chore: bump ${{ env.GEM_NAME }} to ${{ env.GEM_VERSION }}"
-      #       echo "Changes committed."     
-      #       git log
-      #       echo "changes=true" >> "$GITHUB_OUTPUT"
-      #     else
-      #       echo "No changes to commit."
-      #       echo "changes=false" >> "$GITHUB_OUTPUT"
-      #     fi
+          cd ${{ matrix.appPath }}
+          if [ -n "$(git status Gemfile.lock --porcelain)" ]; then
+            git checkout -b update-${{ env.GEM_NAME }}-to-${{ env.GEM_VERSION }}
+            git diff Gemfile.lock 
+            git add Gemfile.lock
+            git commit -m "chore: bump ${{ env.GEM_NAME }} to ${{ env.GEM_VERSION }}"
+            echo "Changes committed."     
+            git log
+            echo "changes=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "No changes to commit."
+            echo "changes=false" >> "$GITHUB_OUTPUT"
+          fi
 
-      # # Raise a PR aganst target repo only if there are changes to commit
-      # - name: Raise Pull Request
-      #   if: steps.commit_changes.outputs.changes == 'true'
-      #   run: |
-      #     set -euo pipefail
+      # Raise a PR aganst target repo only if there are changes to commit
+      - name: Raise Pull Request
+        if: steps.commit_changes.outputs.changes == 'true'
+        run: |
+          set -euo pipefail
 
-      #     git push origin update-${{ env.GEM_NAME }}-to-${{ env.GEM_VERSION }}
+          git push origin update-${{ env.GEM_NAME }}-to-${{ env.GEM_VERSION }}
 
-      #     gh pr create --title "[gem] bump ${{ env.GEM_NAME }} to ${{ env.GEM_VERSION }}" --body "This PR updates ${{ env.GEM_NAME }} to ${{ env.GEM_VERSION }}. It was automatically generated as a result of a new release." --base main --head update-${{ env.GEM_NAME }}-to-${{ env.GEM_VERSION }}      
-      #   env:
-      #     GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          gh pr create --title "[gem] bump ${{ env.GEM_NAME }} to ${{ env.GEM_VERSION }}" --body "This PR updates ${{ env.GEM_NAME }} to ${{ env.GEM_VERSION }}. It was automatically generated as a result of a new release." --base main --head update-${{ env.GEM_NAME }}-to-${{ env.GEM_VERSION }}      
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
