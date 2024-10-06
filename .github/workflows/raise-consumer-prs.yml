@@ -43,23 +43,12 @@ jobs:
       GEM_VERSION: ${{ inputs.gem-version || github.event.release.tag_name || github.sha }}
     steps:
       # Debug
-      - name: debug_workflow_call
-        id: debug_workflow_call
-        if: inputs.autogenerate_tag == false
+      - name: debug
+        id: debug
         run: |
           set -euo pipefail
 
-          echo "Triggered as reusable workflow. Expecing inputs."
-          echo "gem-version: ${{ inputs.gem-version}}"
-
-      - name: debug_not_workflow_call
-        id: debug_not_workflow_call
-        if: inputs.autogenerate_tag == true
-        run: |
-          set -euo pipefail
-          
-          echo "Triggered as non-reusable workflow. Assuming inputs."
-          echo "GEM_VERSION: $GEM_VERSION"
+          echo "gem-version: $GEM_VERSION"
       # - uses: actions/create-github-app-token@v1
       #   id: app-token
       #   with:
