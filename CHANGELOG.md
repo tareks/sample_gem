@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.0](https://github.com/tareks/sample_gem/compare/v0.5.0...v0.6.0) (2024-10-06)
+
+
+### Features
+
+* fake trigger release ([092ce47](https://github.com/tareks/sample_gem/commit/092ce472a28b2983ff26a73a416bf924ce802d37))
+
 ## [0.5.0](https://github.com/tareks/sample_gem/compare/v0.4.0...v0.5.0) (2024-10-06)
 
 
