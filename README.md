@@ -42,3 +42,4 @@ another test
 another
 another
 fake
+fake release
