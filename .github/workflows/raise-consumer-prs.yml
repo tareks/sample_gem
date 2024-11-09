@@ -71,8 +71,7 @@ jobs:
         run: |
           cd ${{ matrix.appPath }}
 
-          bundle install
-          echo "PREVIOUS_GEM_VERSION=$(bundle exec gem spec sample_gem version | grep 'version' | cut -d ' ' -f 2)" >> $GITHUB_ENV
+          echo "PREVIOUS_GEM_VERSION=$(grep -Eo 'sample_gem \(([^)]+)\)' Gemfile.lock | sed 's/.*(\([^)]*\)).*/\1/')" >> $GITHUB_ENV
           echo "previous-version: $PREVIOUS_GEM_VERSION ${{ env.PREVIOUS_GEM_VERSION }}"
 
           bundle update ${{ env.GEM_NAME }}
