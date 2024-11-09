@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.1](https://github.com/tareks/sample_gem/compare/v0.9.0...v0.9.1) (2024-11-09)
+
+
+### Bug Fixes
+
+* fake release ([7833fe8](https://github.com/tareks/sample_gem/commit/7833fe8ad4340b74fd926ebf5a32e6663bd4c2c1))
+
 ## [0.9.0](https://github.com/tareks/sample_gem/compare/v0.8.0...v0.9.0) (2024-11-09)
 
 
