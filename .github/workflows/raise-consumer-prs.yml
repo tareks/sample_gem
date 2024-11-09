@@ -28,11 +28,11 @@ jobs:
     strategy:
       matrix:
         include:
-          - repoOwner: 'tareks'
-            repoName: 'hello-world-rails'
-            appPath: 'hello_world'
+          - repoOwner: "tareks"
+            repoName: "hello-world-rails"
+            appPath: "hello_world"
 
-    name: 'Raising PR against ${{ matrix.repoOwner }}/${{ matrix.repoName }}'
+    name: "Raising PR against ${{ matrix.repoOwner }}/${{ matrix.repoName }}"
     env:
       GEM_NAME: sample_gem
       # Base value on workflow_call (reusable) or user triggered release or just commit
@@ -66,7 +66,7 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           bundler-cache: false
-          
+
       - name: Bundle update
         run: |
           cd ${{ matrix.appPath }}
@@ -93,10 +93,10 @@ jobs:
           cd ${{ matrix.appPath }}
           if [ -n "$(git status Gemfile.lock --porcelain)" ]; then
             git checkout -b update-${{ env.GEM_NAME }}-to-${{ env.GEM_VERSION }}
-            git diff Gemfile.lock 
+            git diff Gemfile.lock
             git add Gemfile.lock
-            git commit -m "chore: bump ${{ env.GEM_NAME }} to ${{ env.GEM_VERSION }}"
-            echo "Changes committed."     
+            git commit -m "deps: bump ${{ env.GEM_NAME }} to ${{ env.GEM_VERSION }}"
+            echo "Changes committed."
             git log
             echo "changes=true" >> "$GITHUB_OUTPUT"
           else
@@ -112,6 +112,6 @@ jobs:
 
           git push origin update-${{ env.GEM_NAME }}-to-${{ env.GEM_VERSION }}
 
-          gh pr create --title "[gem] bump ${{ env.GEM_NAME }} to ${{ env.GEM_VERSION }}" --body "This PR updates ${{ env.GEM_NAME }} to ${{ env.GEM_VERSION }}. It was automatically generated as a result of a new release." --base main --head update-${{ env.GEM_NAME }}-to-${{ env.GEM_VERSION }}      
+          gh pr create --title "[gem] bump ${{ env.GEM_NAME }} to ${{ env.GEM_VERSION }}" --body "This PR updates ${{ env.GEM_NAME }} to ${{ env.GEM_VERSION }}. It was automatically generated as a result of a new release." --base main --head update-${{ env.GEM_NAME }}-to-${{ env.GEM_VERSION }}
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
