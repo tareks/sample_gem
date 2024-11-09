@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.8.0](https://github.com/tareks/sample_gem/compare/v0.7.0...v0.8.0) (2024-11-09)
+
+
+### Features
+
+* fake release ([3914cc5](https://github.com/tareks/sample_gem/commit/3914cc5781597e59d099d79c792c769cf7f760d2))
+* fake release ([6d013cb](https://github.com/tareks/sample_gem/commit/6d013cbfdfb7c1be50ff64e204b8640fcea23db0))
+
 ## [0.7.0](https://github.com/tareks/sample_gem/compare/v0.6.0...v0.7.0) (2024-11-09)
 
 
