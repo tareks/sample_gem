@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.0](https://github.com/tareks/sample_gem/compare/v0.6.0...v0.7.0) (2024-11-09)
+
+
+### Features
+
+* bump release ([2d408bd](https://github.com/tareks/sample_gem/commit/2d408bd45b1085e5727b32af4774988f1aa9a05b))
+
 ## [0.6.0](https://github.com/tareks/sample_gem/compare/v0.5.0...v0.6.0) (2024-10-06)
 
 
