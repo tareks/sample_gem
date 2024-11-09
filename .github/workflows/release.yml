@@ -28,7 +28,6 @@ jobs:
       - uses: googleapis/release-please-action@v4
         id: release
         with:
-          release-type: ruby
           config-file: release-please-config.json
 
   raise-consumer-prs:
