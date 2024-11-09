@@ -2,7 +2,7 @@ name: Release
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   release:
@@ -29,7 +29,7 @@ jobs:
 
       # Bump gem version
       # Use release-please-action.
-      - uses: google-github-actions/release-please-action@v3
+      - uses: googleapis/release-please-action@v4
         # Assign an 'id' to this action
         id: release
         with:
