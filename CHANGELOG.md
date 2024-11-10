@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.11.1](https://github.com/tareks/sample_gem/compare/v0.11.0...v0.11.1) (2024-11-10)
+
+
+### Bug Fixes
+
+* add component name ([bc61b0e](https://github.com/tareks/sample_gem/commit/bc61b0ed0c995b22a6eb8665f505f2421fd46aaf))
+* add package name back ([89b311e](https://github.com/tareks/sample_gem/commit/89b311ee9127cdd0d0a5e8ce3c74a66a5d7f3b70))
+* manual bump of lock file ([b5831c6](https://github.com/tareks/sample_gem/commit/b5831c680c9f16c35f81f2ce1d8be2cb92b45285))
+
 ## [0.11.0](https://github.com/tareks/sample_gem/compare/v0.10.0...v0.11.0) (2024-11-10)
 
 
