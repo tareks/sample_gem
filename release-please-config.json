@@ -3,6 +3,7 @@
   "packages": {
     ".": {
       "package-name": "sample_gem",
+      "component": "sample_gem",
       "release-type": "ruby",
       "version-file": "lib/sample_gem/version.rb"
     }
