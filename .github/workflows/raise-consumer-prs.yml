@@ -116,8 +116,13 @@ jobs:
 
           git push origin update-${{ env.GEM_NAME }}-to-${{ env.GEM_VERSION }}
 
+          cat << EOF >> pr_description.txt
+          This PR updates ${{ env.GEM_NAME }} to ${{ env.GEM_VERSION }}.
+          It was automatically generated as a result of a new release
 
+          Changes: https://github.com/${{ github.repository_owner }}/${{ env.GEM_NAME }}/compare/v${{ env.PREVIOUS_GEM_VERSION }}...${{ env.GEM_VERSION }}
+          EOF
 
-          gh pr create --title "[gem] bump ${{ env.GEM_NAME }} to ${{ env.GEM_VERSION }}" --body "This PR updates ${{ env.GEM_NAME }} to ${{ env.GEM_VERSION }}. It was automatically generated as a result of a new release.\n Changes: https://github.com/tareks/${{ env.GEM_NAME }}/compare/v${{ env.PREVIOUS_GEM_VERSION }}...${{ env.GEM_VERSION }}" --base main --head update-${{ env.GEM_NAME }}-to-${{ env.GEM_VERSION }}
+          gh pr create --title "[gem] bump ${{ env.GEM_NAME }} to ${{ env.GEM_VERSION }}" --body-file pr_description.txt --base main --head update-${{ env.GEM_NAME }}-to-${{ env.GEM_VERSION }}
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
